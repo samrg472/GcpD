@@ -106,7 +106,7 @@ namespace GcpD.Core.ChannelManagement {
         }
 
         public bool Registered(string channel) {
-            return Utilities.Utils.Database.Exists("channels", "channel", channel);
+            return References.Database.Exists("channels", "channel", channel);
         }
     }
 

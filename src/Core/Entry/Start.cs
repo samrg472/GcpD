@@ -35,6 +35,7 @@ using Mono.Data.Sqlite;
 using JsonConfig;
 using GcpD.Core;
 using GcpD.Utilities;
+using GcpD.API.References;
 
 namespace GcpD.Core.Entry {
 
@@ -42,10 +43,10 @@ namespace GcpD.Core.Entry {
 
         private static void Main(string[] args) {
             UserCheck();
-            var di = new DirectoryInfo(Utils.GCPD_FOLDER);
+            var di = new DirectoryInfo(References.GCPD_FOLDER);
             if (!di.Exists)
                 di.Create();
-            Directory.SetCurrentDirectory(Utils.GCPD_FOLDER);
+            Directory.SetCurrentDirectory(References.GCPD_FOLDER);
             new Start().Run(args);
         }
 
@@ -63,9 +64,9 @@ namespace GcpD.Core.Entry {
             loader.LoadPlugins();
 
             // Populate sqlite database with default tables and columns
-            Utils.Database.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS channels(channel TEXT(32) PRIMARY KEY NOT NULL, owner TEXT(32) NOT NULL)");
+            References.Database.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS channels(channel TEXT(32) PRIMARY KEY NOT NULL, owner TEXT(32) NOT NULL)");
 
-            Config.SetUserConfig(Config.ApplyJsonFromPath(Path.Combine(Utils.GCPD_FOLDER, "settings.conf")));
+            Config.SetUserConfig(Config.ApplyJsonFromPath(Path.Combine(References.GCPD_FOLDER, "settings.conf")));
             Console.WriteLine("Binding to {0} on port {1}", string.IsNullOrEmpty(Config.User.BindAddress) ? "all interfaces" : Config.User.BindAddress, ushort.Parse(Config.User.Port));
             Console.WriteLine("Maximum number of connections {0}", Config.User.MaxConnections);
             ServerHandler server = new ServerHandler(Config.User.BindAddress, 
@@ -75,14 +76,14 @@ namespace GcpD.Core.Entry {
         }
 
         private void InitializeSettings() {
-            if (new FileInfo(Path.Combine(Utils.GCPD_FOLDER, "settings.conf")).Exists)
+            if (new FileInfo(Path.Combine(References.GCPD_FOLDER, "settings.conf")).Exists)
                 return;
 
             StreamReader reader = null;
             StreamWriter writer = null;
             try {
                 reader = new StreamReader(Assembly.GetEntryAssembly().GetManifestResourceStream("default.conf"));
-                writer = new StreamWriter(Path.Combine(Utils.GCPD_FOLDER, "settings.conf"));
+                writer = new StreamWriter(Path.Combine(References.GCPD_FOLDER, "settings.conf"));
                 string writeOut = reader.ReadToEnd();
                 writer.Write(writeOut);
                 writer.Flush();

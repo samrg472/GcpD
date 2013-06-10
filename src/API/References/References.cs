@@ -28,54 +28,14 @@
 //
 using System;
 using System.IO;
-using System.Reflection;
-using System.Collections.Generic;
-using GcpD.Utilities;
-using GcpD.API.References;
+using GcpD.Core;
 
-namespace GcpD.Plugin {
+namespace GcpD.API.References {
+    public class References {
 
-    public class PluginLoader {
+        public static readonly string GCPD_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gcpd");
+        public static readonly DbHandler Database = new DbHandler();
 
-        public static readonly string PluginsDirectory = Path.Combine(References.GCPD_FOLDER, "plugins");
-
-        public void LoadPlugins() {
-            string[] paths = Directory.GetFiles(PluginsDirectory, "*.dll");
-            foreach (string path in paths)
-                Load(path);
-        }
-
-        private void Load(string dll) {
-            string DLLPath = Path.Combine(PluginsDirectory, dll);
-            if (!(new FileInfo(DLLPath).Exists))
-                return;
-
-            var name = AssemblyName.GetAssemblyName(DLLPath);
-            var assembly = Assembly.Load(name);
-
-            foreach (Type t in assembly.GetTypes()) {
-                if (t.GetInterface(typeof(API.IPlugin).Name) == null)
-                    continue;
-
-                API.IPlugin plugin = ((API.IPlugin)Activator.CreateInstance(t));
-                plugin.OnLoad();
-                plugin = null;
-                return;
-            }
-        }
-
-        private static Assembly AssemblyResolver(object sender, ResolveEventArgs args) {
-            var assemblyname = new AssemblyName(args.Name).Name;
-            var assemblyFileName = Path.Combine(PluginsDirectory, assemblyname + ".dll");
-            return Assembly.LoadFrom(assemblyFileName);
-        }
-
-        static PluginLoader() {
-            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver;
-            DirectoryInfo info = new DirectoryInfo(PluginsDirectory);
-            if (!info.Exists)
-                info.Create();
-        }
     }
 }
 

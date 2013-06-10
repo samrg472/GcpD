@@ -55,6 +55,7 @@
     <Compile Include="API\Wrappers\Client.cs" />
     <Compile Include="API\References\GcpdConstants.cs" />
     <Compile Include="API\References\SyntaxCodes.cs" />
+    <Compile Include="API\References\References.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

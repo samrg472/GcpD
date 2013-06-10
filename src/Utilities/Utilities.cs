@@ -35,9 +35,6 @@ namespace GcpD.Utilities {
 
     public static class Utils {
 
-        public static readonly string GCPD_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gcpd");
-        public static readonly DbHandler Database = new DbHandler();
-
         public static string[] Split(string[] data, params string[] parameters) {
             string[] filteredParams = new string[parameters.Length];
             for (int i = 0; i < data.Length; i++) {
