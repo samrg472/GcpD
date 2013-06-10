@@ -1,3 +1,4 @@
 bin/
+test-results
 tests/test-results
 *.userprefs

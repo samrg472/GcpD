@@ -28,7 +28,7 @@
 //
 using System;
 using NUnit.Framework;
-using GcpD.References;
+using GcpD.API.References;
 
 namespace Test.Utilities {
 
