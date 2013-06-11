@@ -1,4 +1,4 @@
 GcpD
 ====
 
-A server implement the GCP (Generic Chat Protocol) specifications.
+A server implementing the GCP (Generic Chat Protocol) specifications.
