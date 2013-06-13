@@ -32,6 +32,9 @@ using GcpD.Core;
 namespace GcpD.API.Events {
     public class MessageEvent : BaseEventArgs {
 
+        /// <summary>
+        /// True if the target is a channel else false.
+        /// </summary>
         public readonly bool IsTargetChannel;
         public readonly string Target;
         public readonly string Message;
