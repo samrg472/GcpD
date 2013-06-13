@@ -27,10 +27,12 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 using System;
+using GcpD.Core;
 
-namespace GcpD.API {
+namespace GcpD.Utilities {
+    public static class InternalReferences {
 
-    public class Events {
+        internal static ServerHandler Handler;
 
     }
 }

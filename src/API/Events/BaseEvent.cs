@@ -27,40 +27,14 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 using System;
-using System.IO;
-using GcpD.API.References;
-using GcpD.Core;
 
-namespace GcpD.Utilities {
+namespace GcpD.API.Events {
+    public abstract class BaseEventArgs : EventArgs {
 
-    public static class Utils {
-
-        public static ServerHandler GetServerHandler() {
-            return InternalReferences.Handler;
+        public ServerController Controller {
+            get { return ServerController.Instance; }
         }
 
-        public static string[] Split(string[] data, params string[] parameters) {
-            string[] filteredParams = new string[parameters.Length];
-            for (int i = 0; i < data.Length; i++) {
-                string[] subData = ValueSplitter(data[i]);
-                if (subData == null)
-                    continue;
-                int index;
-                if ((index = Array.IndexOf(parameters, subData[0])) > -1) {
-                    filteredParams[index] = subData[1];
-                }
-            }
-            return filteredParams;
-        }
-
-        public static string[] ValueSplitter(string data) {
-            int index = data.IndexOf(SyntaxCode.VALUE_SPLITTER);
-            if (index == -1) {
-                return null;
-            }
-            return new string[] { data.Substring(0, index), data.Substring(index + 1) };
-        }
     }
-
 }
 

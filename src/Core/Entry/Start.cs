@@ -69,10 +69,10 @@ namespace GcpD.Core.Entry {
             Config.SetUserConfig(Config.ApplyJsonFromPath(Path.Combine(References.GCPD_FOLDER, "settings.conf")));
             Console.WriteLine("Binding to {0} on port {1}", string.IsNullOrEmpty(Config.User.BindAddress) ? "all interfaces" : Config.User.BindAddress, ushort.Parse(Config.User.Port));
             Console.WriteLine("Maximum number of connections {0}", Config.User.MaxConnections);
-            ServerHandler server = new ServerHandler(Config.User.BindAddress, 
+            InternalReferences.Handler = new ServerHandler(Config.User.BindAddress, 
                                                      ushort.Parse(Config.User.Port), 
                                                      uint.Parse(Config.User.MaxConnections));
-            server.Start();
+            InternalReferences.Handler.Start();
         }
 
         private void InitializeSettings() {

@@ -31,7 +31,7 @@ using System.IO;
 using GcpD.Core;
 
 namespace GcpD.API.References {
-    public class References {
+    public static class References {
 
         public static readonly string GCPD_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gcpd");
         public static readonly DbHandler Database = new DbHandler();

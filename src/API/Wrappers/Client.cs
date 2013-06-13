@@ -46,7 +46,7 @@ namespace GcpD.API.Wrappers {
         }
 
         public void SendMessage(string channel, string message) {
-            Handler.ChannelsManager.SendMessage(_Client.NickName, message, channel);
+            Handler.ChannelsManager.SendMessage(_Client.NickName, channel, message);
         }
 
         public static Client GetClient(ServerHandler handler, string nick) {

@@ -27,12 +27,22 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 using System;
+using GcpD.API;
+using GcpD.API.Events;
 
 namespace TestPlugin {
     public class Test : GcpD.API.IPlugin {
 
         public void OnLoad() {
             Console.WriteLine("Hello world from the plugin!");
+            EventListener.MessageEvent += MessageEventHandler;
+        }
+
+        public void MessageEventHandler(object sender, MessageEvent e) {
+            if (e.IsTargetChannel)
+                Console.WriteLine("MSG to {0} by {1}: {2}", e.Target, e.User, e.Message);
+            else
+                Console.WriteLine("PRIVMSG by {0}: {1}", e.Target, e.Message);
         }
     }
 }

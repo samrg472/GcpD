@@ -74,12 +74,14 @@ namespace GcpD.Core.ClientManagement {
                     return;
                 }
                 if (data[0] == "true") {
-                    handler.Handler.ChannelsManager.SendMessage(handler.NickName, data[2], data[1]);
+                    handler.Handler.ChannelsManager.SendMessage(handler.NickName, data[1], data[2]);
+                    EventHandlers.PostMessageEvent(new API.Events.MessageEvent(data[1], handler.NickName, data[2]));
                 } else if (data[0] == "false") {
                     if (!handler.Handler.ClientsManager.NickTaken(data[1]))
                         return;
                     Client client = handler.Handler.ClientsManager.GetClient(data[1]);
                     client.Send(SendType.MSG, string.Format("Channel{1}false{0}Target{1}{2}{0}Message{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, data[1], data[2]));
+                    EventHandlers.PostMessageEvent(new API.Events.MessageEvent(data[1], data[2]));
                 } else {
                     handler.SendError(SendType.ERROR_0005, SendType.MSG, line);
                 }

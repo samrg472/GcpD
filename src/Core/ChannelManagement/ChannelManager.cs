@@ -82,7 +82,7 @@ namespace GcpD.Core.ChannelManagement {
             }
         }
 
-        public void SendMessage(string user, string message, string channel) {
+        public void SendMessage(string user, string channel, string message) {
             if (!Channels.ContainsKey(channel))
                 return;
             if (!Channels[channel].HasUser(user))

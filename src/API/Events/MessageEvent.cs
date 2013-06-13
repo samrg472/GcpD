@@ -30,11 +30,32 @@ using System;
 using GcpD.Core;
 
 namespace GcpD.API.Events {
-    public class MessageEvent : EventArgs {
+    public class MessageEvent : BaseEventArgs {
 
-        public readonly ServerHandler Handler;
+        public readonly bool IsTargetChannel;
+        public readonly string Target;
+        public readonly string Message;
+        public string User {
+            get {
+                if (IsTargetChannel)
+                    return _User;
+                return Target;
+            }
+        }
 
-        public MessageEvent() {
+        private string _User;
+
+        public MessageEvent(string target, string message) : this(false, target, null, message) {
+        }
+
+        public MessageEvent(string target, string user, string message) : this(true, target, user, message) {
+        }
+
+        private MessageEvent(bool isTargetChannel, string target, string user, string message) {
+            IsTargetChannel = isTargetChannel;
+            Target = target;
+            Message = message;
+            _User = user;
         }
     }
 }

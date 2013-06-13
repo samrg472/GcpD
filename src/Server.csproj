@@ -49,13 +49,16 @@
     </Compile>
     <Compile Include="Plugin\PluginLoader.cs" />
     <Compile Include="API\IPlugin.cs" />
-    <Compile Include="API\Events.cs" />
     <Compile Include="API\Events\MessageEvent.cs" />
     <Compile Include="API\ServerController.cs" />
     <Compile Include="API\Wrappers\Client.cs" />
     <Compile Include="API\References\GcpdConstants.cs" />
     <Compile Include="API\References\SyntaxCodes.cs" />
     <Compile Include="API\References\References.cs" />
+    <Compile Include="API\EventListeners.cs" />
+    <Compile Include="Utilities\InternalReferences.cs" />
+    <Compile Include="API\Events\BaseEvent.cs" />
+    <Compile Include="Core\EventHandlers.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -33,6 +33,18 @@ using GcpD.API.Wrappers;
 namespace GcpD.API {
     public class ServerController {
 
+        public static ServerController Instance {
+            get {
+                if (_Instance == null)
+                    _Instance = new ServerController(Utilities.Utils.GetServerHandler());
+                return _Instance;
+            }
+            private set {
+                _Instance = value;
+            }
+        }
+        private static ServerController _Instance;
+
         /// <summary>
         /// Low level object to handle the server if the provided wrapper APIs are not enough.
         /// </summary>
