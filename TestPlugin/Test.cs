@@ -31,7 +31,7 @@ using GcpD.API;
 using GcpD.API.Events;
 
 namespace TestPlugin {
-    public class Test : GcpD.API.IPlugin {
+    public class Test : IPlugin {
 
         public void OnLoad() {
             Console.WriteLine("Hello world from the plugin!");
