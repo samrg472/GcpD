@@ -71,12 +71,6 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\JsonConfig\JsonConfig\JsonConfig.csproj">
-      <Project>{10095092-E1E5-441F-9380-B6329F3CFEB4}</Project>
-      <Name>JsonConfig</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Core\" />
     <Folder Include="Core\ClientManagement\" />
     <Folder Include="Utilities\" />
@@ -100,5 +94,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <LogicalName>default.conf</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\JsonConfig\JsonConfig\JsonConfig.csproj">
+      <Project>{10095092-E1E5-441F-9380-B6329F3CFEB4}</Project>
+      <Name>JsonConfig</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

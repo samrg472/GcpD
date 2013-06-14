@@ -1,0 +1,3 @@
+[submodule "JsonConfig"]
+	path = JsonConfig
+	url = git://github.com/samrg472/JsonConfig.git

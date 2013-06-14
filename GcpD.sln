@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "src\Server.csproj", "{9815B071-65B9-432A-8408-A75403578651}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonConfig", "..\JsonConfig\JsonConfig\JsonConfig.csproj", "{10095092-E1E5-441F-9380-B6329F3CFEB4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "tests\Tests.csproj", "{C2B10A6C-7C61-4E70-B66E-1543B09D3D65}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{7C166B1A-E547-4F0A-A3A4-1506C04F4940}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonConfig", "JsonConfig\JsonConfig\JsonConfig.csproj", "{10095092-E1E5-441F-9380-B6329F3CFEB4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
