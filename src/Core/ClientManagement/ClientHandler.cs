@@ -43,7 +43,7 @@ namespace GcpD.Core.ClientManagement {
 
         public bool IsProperlyConnected {
             get { return _IsProperlyConnected; }
-            internal set { _IsProperlyConnected = value; }
+            internal set { _IsProperlyConnected = value; } 
         }
 
         public readonly ServerHandler Handler;
@@ -136,7 +136,7 @@ namespace GcpD.Core.ClientManagement {
             Console.WriteLine(line);
             string[] splitData;
             if (!SyntaxCheck(line, out splitData)) {
-                Send(SendType.SYNTAXERROR, string.Format("Error{1}0000{0}Data{1}{2}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, line));
+                Send(SendType.SYNTAXERROR, string.Format("Error{1}{2}{0}Data{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, SendType.ERROR_0000, line));
                 Console.WriteLine("Thrown syntax error for host {0}", GetHostName());
                 return;
             }
@@ -169,6 +169,12 @@ namespace GcpD.Core.ClientManagement {
                     break;
                 case SendType.LEAVE:
                     ParserExecutor.Leave(this, line, splitData);
+                    break;
+                case SendType.PING:
+                    ParserExecutor.Ping(this, line, splitData);
+                    break;
+                case SendType.PONG:
+                    ParserExecutor.Pong(this, line, splitData);
                     break;
             }
         }

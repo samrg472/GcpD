@@ -49,6 +49,10 @@ namespace GcpD.Core.ClientManagement {
                                data.Substring(data.IndexOf(SyntaxCode.PARAM_SPLITTER) + 1)));
         }
 
+        public void Send(SendType type) {
+            Send(type, "");
+        }
+
         public void Send(SendType type, string msg) {
             Writer.WriteLine(type.ToString() + SyntaxCode.PARAM_SPLITTER + msg);
             Writer.Flush();

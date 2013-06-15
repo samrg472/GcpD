@@ -42,6 +42,7 @@ namespace Test.Utilities {
             string[] splitArray2 = GcpD.Utilities.Utils.Split(testArray, "Channel", "Target");
             string[] splitArray3 = GcpD.Utilities.Utils.Split(testArray, "Channel");
             string[] splitArray4 = GcpD.Utilities.Utils.Split(testArray, "Target");
+            string[] splitArray5 = GcpD.Utilities.Utils.Split(testArray, "NonExistant");
 
             Assert.AreEqual(2, splitArray1.Length);
             Assert.AreEqual(2, splitArray2.Length);
@@ -56,6 +57,8 @@ namespace Test.Utilities {
 
             Assert.AreEqual("#TestChannel", splitArray3[0]);
             Assert.AreEqual("Test", splitArray4[0]);
+
+            Assert.Null(splitArray5[0]);
         }
 
         [Test]

@@ -67,7 +67,6 @@
     <Reference Include="Mono.Data.Sqlite" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
-    <Reference Include="nunit.framework" />
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
