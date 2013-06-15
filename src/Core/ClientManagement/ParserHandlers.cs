@@ -60,9 +60,13 @@ namespace GcpD.Core.ClientManagement {
 
         public static void Leave(Client handler, string line, string[] splitData) {
             string[] data;
-            if (ParserHelper.Leave(splitData, out data))
+            if (ParserHelper.Leave(splitData, out data)) {
+                if (handler.Handler.ChannelsManager.UserInChannel(handler.NickName, data[0])) {
+                    handler.SendError(SendType.ERROR_0003, SendType.LEAVE, line);
+                    return;
+                }
                 handler.Handler.ChannelsManager.Leave(handler.NickName, data[0]);
-            else
+            } else
                 handler.SendError(SendType.ERROR_0005, SendType.LEAVE, line);
         }
 

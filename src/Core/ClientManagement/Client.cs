@@ -61,7 +61,7 @@ namespace GcpD.Core.ClientManagement {
         internal void SendError(SendType error, string type, string data) {
             string errorString = error.ToString();
             string numericalError = errorString.Substring(errorString.IndexOf('_') + 1);
-            Send(SendType.ERROR, string.Format("Error{1}{2}{0}Type{1}{3}{0}PARAMETERS{1}{4}",
+            Send(SendType.ERROR, string.Format("Error{1}{2}{0}Type{1}{3}{0}{4}",
                                                SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, numericalError,
                                                type,
                                                data.Substring(data.IndexOf(SyntaxCode.PARAM_SPLITTER) + 1)));

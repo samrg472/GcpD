@@ -43,6 +43,12 @@ namespace GcpD.Core.ChannelManagement {
             this.Handler = handler;
         }
 
+        public bool UserInChannel(string user, string channel) {
+            if (!Channels.ContainsKey(channel))
+                return false;
+            return Channels[channel].HasUser(user);
+        }
+
         public void Join(string user, string channel) {
             if (!Channels.ContainsKey(channel))
                 Create(channel);
