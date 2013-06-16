@@ -41,7 +41,7 @@ namespace GcpD.Core.ClientManagement {
         private string _NickName = null;
 
         public string RealName {
-            get { return _RealName ?? NickName; }
+            get { return _RealName; }
         }
         private string _RealName = null;
 

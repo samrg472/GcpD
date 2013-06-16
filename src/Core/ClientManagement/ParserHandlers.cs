@@ -44,8 +44,7 @@ namespace GcpD.Core.ClientManagement {
                     handler.Send(SendType.CONNECT, string.Format("Connected{0}true", SyntaxCode.VALUE_SPLITTER));
                     handler.IsProperlyConnected = true;
                     // TODO: implement data[1] (password), and services
-                    if (data[2] != null)
-                        handler.SetRealName(data[2]);
+                    handler.SetRealName(data[2] ?? data[0]);
                 } else {
                     handler.SendError(SendType.ERROR_0006, SendType.CONNECT, line);
                 }
