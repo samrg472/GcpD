@@ -40,15 +40,6 @@ namespace GcpD.Core.ClientManagement {
         }
         private string _NickName = null;
 
-        public void SendError(SendType error, SendType type, string data) {
-            string errorString = error.ToString();
-            string numericalError = errorString.Substring(errorString.IndexOf('_') + 1);
-            Send(SendType.ERROR, string.Format("Error{1}{2}{0}Type{1}{3}{0}PARAMETERS{1}{4}",
-                               SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, numericalError,
-                               type.ToString(),
-                               data.Substring(data.IndexOf(SyntaxCode.PARAM_SPLITTER) + 1)));
-        }
-
         public void Send(SendType type) {
             Send(type, "");
         }
@@ -56,6 +47,10 @@ namespace GcpD.Core.ClientManagement {
         public void Send(SendType type, string msg) {
             Writer.WriteLine(type.ToString() + SyntaxCode.PARAM_SPLITTER + msg);
             Writer.Flush();
+        }
+
+        public void SendError(SendType error, SendType type, string data) {
+            SendError(error, type.ToString(), data);
         }
 
         internal void SendError(SendType error, string type, string data) {
