@@ -40,6 +40,11 @@ namespace GcpD.Core.ClientManagement {
         }
         private string _NickName = null;
 
+        public string RealName {
+            get { return _RealName ?? NickName; }
+        }
+        private string _RealName = null;
+
         public void Send(SendType type) {
             Send(type, "");
         }
@@ -75,6 +80,12 @@ namespace GcpD.Core.ClientManagement {
                 Handler.ClientsManager.AddNick(nick, this);
             _NickName = nick;
             return true;
+        }
+
+        public void SetRealName(string realName) {
+            if (_RealName != null)
+                return;
+            _RealName = realName;
         }
     }
 }
