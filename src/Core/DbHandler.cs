@@ -29,11 +29,12 @@
 using System;
 using System.Data.Common;
 using Mono.Data.Sqlite;
+using GcpD.API.References;
 
 namespace GcpD.Core {
     public class DbHandler {
 
-        public const string CONNECTION_STRING = "URI=file:Data.db";
+        public static readonly string CONNECTION_STRING = "URI=file:" + System.IO.Path.Combine(References.GCPD_FOLDER, "Data.db");
 
         private readonly SqliteConnection connection;
 

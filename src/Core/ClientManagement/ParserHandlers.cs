@@ -40,10 +40,25 @@ namespace GcpD.Core.ClientManagement {
 
             string[] data;
             if (ParserHelper.Connect(splitData, out data)) {
+                if (handler.Handler.ClientsManager.NickRegistered(data[0])) {
+                    System.Data.Common.DbDataReader reader = References.Database.Read(string.Format("SELECT {0}, {1} FROM {2} WHERE {3}=@val", InternalReferences.NICKS_PASS_COL, InternalReferences.NICKS_SALT_COL, InternalReferences.NICKS_TABLE, InternalReferences.NICKS_NICK_COL),
+                                             new Mono.Data.Sqlite.SqliteParameter("@val", data[0]));
+                    string hash = "";
+                    string salt = "";
+                    while (reader.Read()) {
+                        hash = reader.GetString(0);
+                        salt = reader.GetString(1);
+                    }
+                    reader.Close();
+                    reader = null;
+                    if (!Utils.ValidPassword(data[1], hash, salt)) {
+                        handler.SendError(SendType.ERROR_0002, SendType.CONNECT, line);
+                        return;
+                    }
+                }
                 if (handler.SetNickName(data[0])) {
                     handler.Send(SendType.CONNECT, string.Format("Connected{0}true", SyntaxCode.VALUE_SPLITTER));
                     handler.IsProperlyConnected = true;
-                    // TODO: implement data[1] (password), and services
                     handler.SetRealName(data[2] ?? data[0]);
                 } else {
                     handler.SendError(SendType.ERROR_0006, SendType.CONNECT, line);
@@ -52,11 +67,27 @@ namespace GcpD.Core.ClientManagement {
                 handler.SendError(SendType.ERROR_0005, SendType.CONNECT, line);
         }
 
+        public static void Register(Client handler, string line, string[] splitData) {
+            string[] data;
+            if (!ParserHelper.Register(splitData, out data)) {
+                handler.SendError(SendType.ERROR_0005, SendType.REGISTER, line);
+                return;
+            }
+            if (handler.Handler.ClientsManager.NickRegistered(handler.NickName)) {
+                handler.SendError(SendType.ERROR_0006, SendType.REGISTER, line);
+                return;
+            }
+            string salt = Utils.GenerateSalt();
+            References.Database.Insert(InternalReferences.NICKS_TABLE, InternalReferences.NICKS_NICK_COL, InternalReferences.NICKS_PASS_COL, InternalReferences.NICKS_SALT_COL,
+                                       handler.NickName, Utils.Hash(data[0], salt), salt);
+            handler.SetAuthenticated(true);
+        }
+
         public static void Join(Client handler, string line, string[] splitData) {
             string[] data;
-            if (ParserHelper.Join(splitData, out data)) {
+            if (ParserHelper.Join(splitData, out data))
                 handler.Handler.ChannelsManager.Join(handler.NickName, data[0]);
-            } else
+            else
                 handler.SendError(SendType.ERROR_0005, SendType.JOIN, line);
         }
 
@@ -74,27 +105,29 @@ namespace GcpD.Core.ClientManagement {
 
         public static void Msg(Client handler, string line, string[] splitData) {
             string[] data;
-            if (ParserHelper.Msg(splitData, out data)) {
-                if (string.IsNullOrEmpty(data[1])) {
-                    handler.SendError(SendType.ERROR_0004, SendType.MSG, line);
-                    return;
-                }
-                if (data[0] == "true") {
-                    handler.Handler.ChannelsManager.SendMessage(handler.NickName, data[1], data[2]);
-                    EventHandlers.PostMessageEvent(new API.Events.MessageEvent(data[1], handler.NickName, data[2]));
-                } else if (data[0] == "false") {
-                    if (!handler.Handler.ClientsManager.NickTaken(data[1])) {
-                        handler.SendError(SendType.ERROR_0004, SendType.MSG, line);
-                        return;
-                    }
-                    Client client = handler.Handler.ClientsManager.GetClient(data[1]);
-                    client.Send(SendType.MSG, string.Format("Channel{1}false{0}Target{1}{2}{0}Message{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, data[1], data[2]));
-                    EventHandlers.PostMessageEvent(new API.Events.MessageEvent(data[1], data[2]));
-                } else {
-                    handler.SendError(SendType.ERROR_0005, SendType.MSG, line);
-                }
-            } else
+            if (!ParserHelper.Msg(splitData, out data)) {
                 handler.SendError(SendType.ERROR_0005, SendType.MSG, line);
+                return;
+            }
+            if (string.IsNullOrEmpty(data[1])) {
+                handler.SendError(SendType.ERROR_0004, SendType.MSG, line);
+                return;
+            }
+            if (data[0] == "true") {
+                handler.Handler.ChannelsManager.SendMessage(handler.NickName, data[1], data[2]);
+                EventHandlers.PostMessageEvent(new API.Events.MessageEvent(data[1], handler.NickName, data[2]));
+            } else if (data[0] == "false") {
+                if (!handler.Handler.ClientsManager.NickTaken(data[1])) {
+                        handler.SendError(SendType.ERROR_0004, SendType.MSG, line);
+                    return;
+                    }
+                Client client = handler.Handler.ClientsManager.GetClient(data[1]);
+                client.Send(SendType.MSG, string.Format("Channel{1}false{0}Target{1}{2}{0}Message{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, data[1], data[2]));
+                EventHandlers.PostMessageEvent(new API.Events.MessageEvent(data[1], data[2]));
+            } else {
+                handler.SendError(SendType.ERROR_0005, SendType.MSG, line);
+            }
+        
         }
 
         public static void Ping(Client handler, string line, string[] splitData) {
@@ -115,14 +148,14 @@ namespace GcpD.Core.ClientManagement {
 
         public static void Pong(Client handler, string line, string[] splitData) {
             string[] data;
-            if (ParserHelper.Pong(splitData, out data)) {
-                if (!handler.Handler.ClientsManager.NickTaken(data[0]))
-                    return;
-                Client client = handler.Handler.ClientsManager.GetClient(data[0]);
-                client.Send(SendType.PONG, string.Format("User{0}{1}", SyntaxCode.VALUE_SPLITTER, data[0]));
-            } else {
-                handler.SendError(SendType.ERROR_0005, SendType.MSG, line);
+            if (!ParserHelper.Pong(splitData, out data)) {
+                handler.SendError(SendType.ERROR_0005, SendType.PONG, line);
+                return;
             }
+            if (!handler.Handler.ClientsManager.NickTaken(data[0]))
+                return;
+            Client client = handler.Handler.ClientsManager.GetClient(data[0]);
+            client.Send(SendType.PONG, string.Format("User{0}{1}", SyntaxCode.VALUE_SPLITTER, data[0]));
         }
     }
 
@@ -130,6 +163,13 @@ namespace GcpD.Core.ClientManagement {
 
         public static bool Connect(string[] data, out string[] parameters) {
             parameters = Utils.Split(data, "Nick", "Pass", "RealName");
+            if (parameters[0] == null)
+                return false;
+            return true;
+        }
+
+        public static bool Register(string[] data, out string[] parameters) {
+            parameters = Utils.Split(data, "Pass");
             if (parameters[0] == null)
                 return false;
             return true;

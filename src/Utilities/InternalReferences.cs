@@ -30,9 +30,18 @@ using System;
 using GcpD.Core;
 
 namespace GcpD.Utilities {
-    public static class InternalReferences {
+    internal static class InternalReferences {
 
-        internal static ServerHandler Handler;
+        public static ServerHandler Handler;
+
+        public const string CHANNELS_TABLE = "Channels";
+        public const string CHANNELS_CHANNEL_COL = "channel";
+        public const string CHANNELS_OWNER_COL = "owner";
+
+        public const string NICKS_TABLE = "Nicks";
+        public const string NICKS_NICK_COL = "nick";
+        public const string NICKS_PASS_COL = "pass";
+        public const string NICKS_SALT_COL = "salt";
 
     }
 }

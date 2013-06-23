@@ -51,6 +51,10 @@ namespace GcpD.Core.Entry {
         }
 
         private static void UserCheck() {
+#if BYPASS_SECURITY
+            Console.WriteLine("WARNING:: STARTING IN INSECURE MODE");
+            return;
+#endif
             WindowsIdentity user = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new WindowsPrincipal(user);
             if (principal.IsInRole(WindowsBuiltInRole.Administrator))
@@ -59,12 +63,7 @@ namespace GcpD.Core.Entry {
 
         private void Run(string[] args) {
             InitializeSettings();
-
-            var loader = new Plugin.PluginLoader();
-            loader.LoadPlugins();
-
-            // Populate sqlite database with default tables and columns
-            References.Database.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS channels(channel TEXT(32) PRIMARY KEY NOT NULL, owner TEXT(32) NOT NULL)");
+            InitializeDatabase();
 
             Config.SetUserConfig(Config.ApplyJsonFromPath(Path.Combine(References.GCPD_FOLDER, "settings.conf")));
             Console.WriteLine("Binding to {0} on port {1}", string.IsNullOrEmpty(Config.User.BindAddress) ? "all interfaces" : Config.User.BindAddress, ushort.Parse(Config.User.Port));
@@ -73,6 +72,17 @@ namespace GcpD.Core.Entry {
                                                      ushort.Parse(Config.User.Port), 
                                                      uint.Parse(Config.User.MaxConnections));
             InternalReferences.Handler.Start();
+
+            var loader = new Plugin.PluginLoader();
+            loader.LoadPlugins();
+        }
+
+        private void InitializeDatabase() {
+            // Populate sqlite database with default tables and columns
+            References.Database.ExecuteNonQuery(string.Format("CREATE TABLE IF NOT EXISTS {0}({1} TEXT PRIMARY KEY NOT NULL, {2} TEXT NOT NULL)", 
+                                                              InternalReferences.CHANNELS_TABLE, InternalReferences.CHANNELS_CHANNEL_COL, InternalReferences.CHANNELS_OWNER_COL));
+            References.Database.ExecuteNonQuery(string.Format("CREATE TABLE IF NOT EXISTS {0}({1} TEXT PRIMARY KEY NOT NULL, {2} TEXT NOT NULL, {3} TEXT KEY NOT NULL)", 
+                                                              InternalReferences.NICKS_TABLE, InternalReferences.NICKS_NICK_COL, InternalReferences.NICKS_PASS_COL, InternalReferences.NICKS_SALT_COL));
         }
 
         private void InitializeSettings() {

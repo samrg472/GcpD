@@ -30,6 +30,7 @@ using System;
 using System.Collections.Generic;
 using GcpD.Core.ClientManagement;
 using GcpD.API.References;
+using GcpD.Utilities;
 
 namespace GcpD.Core.ChannelManagement {
 
@@ -112,7 +113,7 @@ namespace GcpD.Core.ChannelManagement {
         }
 
         public bool Registered(string channel) {
-            return References.Database.Exists("channels", "channel", channel);
+            return References.Database.Exists(InternalReferences.CHANNELS_TABLE, InternalReferences.CHANNELS_CHANNEL_COL, channel);
         }
     }
 

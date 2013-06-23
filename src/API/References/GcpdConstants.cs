@@ -59,6 +59,9 @@ namespace GcpD.API.References {
         // Clients connecting and disconnecting
         CONNECT,
         QUIT,
+
+        // Services
+        REGISTER,
     }
 
 }

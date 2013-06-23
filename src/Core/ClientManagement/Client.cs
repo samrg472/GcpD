@@ -45,6 +45,8 @@ namespace GcpD.Core.ClientManagement {
         }
         private string _RealName = null;
 
+        private bool Authenticated = false;
+
         public void Send(SendType type) {
             Send(type, "");
         }
@@ -86,6 +88,14 @@ namespace GcpD.Core.ClientManagement {
             if (_RealName != null)
                 return;
             _RealName = realName;
+        }
+
+        public void SetAuthenticated(bool auth) {
+            Authenticated = auth;
+        }
+
+        public bool IsAuthenticated() {
+            return Authenticated;
         }
     }
 }

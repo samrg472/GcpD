@@ -28,6 +28,7 @@
 //
 using System;
 using System.IO;
+using System.Security.Cryptography;
 using GcpD.API.References;
 using GcpD.Core;
 
@@ -37,6 +38,72 @@ namespace GcpD.Utilities {
 
         public static ServerHandler GetServerHandler() {
             return InternalReferences.Handler;
+        }
+
+        /// <summary>
+        /// Validates to make sure the 2 passwords are equal based on the salt. Salt must be a hexadecimal string.
+        /// </summary>
+        /// <returns><c>true</c>, if password is valid, <c>false</c> otherwise.</returns>
+        /// <param name="key">Received password</param>
+        /// <param name="hash">Original hash</param>
+        /// <param name="salt">Hexadecimal salt</param>
+        public static bool ValidPassword(string key, string hash, string salt) {
+            if (key == null)
+                return false;
+            return Hash(key, salt) == hash;
+        }
+
+        /// <summary>
+        /// Hashes the password based on the salt, the salt must be a hexadecimal string.
+        /// </summary>
+        /// <returns>Hashed password based on salt.</returns>
+        /// <param name="password">password</param>
+        /// <param name="salt">The hexadecimal string salt</param>
+        public static string Hash(string password, string salt) {
+            byte[] passcode = GetBytes(password);
+            string hashString = "";
+            using (HMACSHA512 sha = new HMACSHA512(FromHexString(salt))) {
+                byte[] computed = sha.ComputeHash(passcode);
+                hashString = ToHexString(computed);
+            }
+
+            return hashString;
+        }
+
+        /// <summary>
+        /// Generates the salt.
+        /// </summary>
+        /// <returns>The salt in hex form.</returns>
+        public static string GenerateSalt() {
+            byte[] salt = new byte[2048];
+            using (RNGCryptoServiceProvider crypto = new RNGCryptoServiceProvider()) {
+                crypto.GetBytes(salt);
+            }
+            return ToHexString(salt);
+        }
+
+        public static byte[] GetBytes(string s) {
+            return System.Text.Encoding.ASCII.GetBytes(s);
+        }
+
+        public static string ToHexString(byte[] bytes) {
+            char[] c = new char[bytes.Length * 2];
+            int b;
+            for (int i = 0; i < bytes.Length; i++) {
+                b = bytes[i] >> 4;
+                c[i * 2] = (char) (55 + b + (((b - 10) >> 31) &- 7));
+                b = bytes[i] & 0xF;
+                c[i * 2 + 1] = (char) (55 + b + (((b - 10) >> 31) &- 7));
+            }
+            return new string(c);
+        }
+
+        public static byte[] FromHexString(string s) {
+            int half = s.Length / 2;
+            byte[] bytes = new byte[half];
+            for (int i = 0; i < half; i++)
+                bytes[i] = Convert.ToByte((char) s[i]);
+            return bytes;
         }
 
         public static string[] Split(string[] data, params string[] parameters) {

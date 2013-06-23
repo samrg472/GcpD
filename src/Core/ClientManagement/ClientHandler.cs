@@ -161,6 +161,9 @@ namespace GcpD.Core.ClientManagement {
                 case SendType.QUIT:
                     Handler.ClientsManager.RemoveClient(this);
                     break;
+                case SendType.REGISTER:
+                    ParserExecutor.Register(this, line, splitData);
+                    break;
                 case SendType.MSG:
                     ParserExecutor.Msg(this, line, splitData);
                     break;

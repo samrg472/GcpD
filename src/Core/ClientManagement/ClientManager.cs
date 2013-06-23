@@ -28,6 +28,8 @@
 //
 using System;
 using System.Collections.Generic;
+using GcpD.Utilities;
+using GcpD.API.References;
 
 namespace GcpD.Core.ClientManagement {
     public class ClientManager {
@@ -49,6 +51,10 @@ namespace GcpD.Core.ClientManagement {
 
         public bool NickTaken(string nick) {
             return Nicks.ContainsKey(nick);
+        }
+
+        public bool NickRegistered(string nick) {
+            return References.Database.Exists(InternalReferences.NICKS_TABLE, InternalReferences.NICKS_NICK_COL, nick);
         }
 
         public void AddNick(string nick, Client client) {
