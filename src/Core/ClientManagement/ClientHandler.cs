@@ -133,7 +133,6 @@ namespace GcpD.Core.ClientManagement {
         #region Parser handlers (executed in the thread pool)
         protected void Parser(object _line) {
             string line = (string) _line;
-            Console.WriteLine(line);
             string[] splitData;
             if (!SyntaxCheck(line, out splitData)) {
                 Send(SendType.SYNTAXERROR, string.Format("Error{1}{2}{0}Data{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, SendType.ERROR_0000, line));
@@ -153,6 +152,8 @@ namespace GcpD.Core.ClientManagement {
                     return;
                 }
             }
+            if (type != SendType.REGISTER && type != SendType.CONNECT)
+                Console.WriteLine(line);
 
             switch (type) {
                 case SendType.CONNECT:
