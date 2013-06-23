@@ -55,6 +55,7 @@ namespace GcpD.Core.ClientManagement {
                         handler.SendError(SendType.ERROR_0002, SendType.CONNECT, line);
                         return;
                     }
+                    handler.SetAuthenticated(true);
                 }
                 if (handler.SetNickName(data[0])) {
                     handler.Send(SendType.CONNECT, string.Format("Connected{0}true", SyntaxCode.VALUE_SPLITTER));
