@@ -38,6 +38,7 @@ namespace GcpD.Core.ClientManagement {
 
         private List<Client> UnnamedClients;
         private Dictionary<string, Client> Nicks;
+        private readonly object _lock = new object();
 
         public ClientManager(ServerHandler handler, int maxUsers) {
             UnnamedClients = new List<Client>(maxUsers);
@@ -62,16 +63,18 @@ namespace GcpD.Core.ClientManagement {
                 throw new ArgumentNullException("nick");
             if (client == null)
                 throw new ArgumentNullException("client");
-            if (NickTaken(nick)) {
-                Console.WriteLine("!!! WARNING !!! Attempting to add a nick thats already taken!");
-                return;
+            lock (_lock) {
+                if (NickTaken(nick)) {
+                    Console.WriteLine("!!! WARNING !!! Attempting to add a nick thats already taken!");
+                    return;
+                }
+                if (UnnamedClients.Contains(client)) {
+                    Console.WriteLine("Unnamed client has identified themself as " + nick);
+                    UnnamedClients.Remove(client);
+                }
+
+                Nicks.Add(nick, client);
             }
-            if (UnnamedClients.Contains(client)) {
-                Console.WriteLine("Unnamed client has identified themself as " + nick);
-                UnnamedClients.Remove(client);
-            }
-                
-            Nicks.Add(nick, client);
         }
 
         internal void AddUnnamed(Client client) {

@@ -46,14 +46,18 @@ namespace GcpD.Core.ClientManagement {
         private string _RealName = null;
 
         private bool Authenticated = false;
-
+        private readonly object _lock = new object();
         public void Send(SendType type) {
             Send(type, "");
         }
 
         public void Send(SendType type, string msg) {
-            Writer.WriteLine(type.ToString() + SyntaxCode.PARAM_SPLITTER + msg);
-            Writer.Flush();
+            lock (_lock) {
+                if (Writer == null)
+                    return;
+                Writer.WriteLine(type.ToString() + SyntaxCode.PARAM_SPLITTER + msg);
+                Writer.Flush();
+            }
         }
 
         public void SendError(SendType error, SendType type, string data) {

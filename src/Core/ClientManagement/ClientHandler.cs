@@ -216,22 +216,23 @@ namespace GcpD.Core.ClientManagement {
                 return;
 
             if (disposing) {
-                if (Writer != null)
-                    Writer.Dispose();
+                lock (_lock) {
+                    if (Writer != null)
+                        Writer.Dispose();
+                    Writer = null;
 
-                if (Reader != null)
-                    Reader.Dispose();
+                    if (Reader != null)
+                        Reader.Dispose();
+                    Reader = null;
 
-                if (RawClient != null)
-                    RawClient.Close();
+                    if (RawClient != null)
+                        RawClient.Close();
+                    RawClient = null;
 
-                if (NickName != null)
-                    Handler.ChannelsManager.Leave(NickName);
+                    if (NickName != null)
+                        Handler.ChannelsManager.Leave(NickName);
+                }
             }
-
-            Writer = null;
-            Reader = null;
-            RawClient = null;
 
             _Disposed = true;
             Handler.ClientsManager.RemoveClient(this);
