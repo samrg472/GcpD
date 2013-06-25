@@ -42,12 +42,11 @@ namespace GcpD.Core.ChannelManagement {
             Name = name;
         }
 
-        public bool AddUser(string user) {
+        public void AddUser(string user) {
             if (HasUser(user))
-                return false;
+                return;
             lock (_lock)
                 Users.Add(user);
-            return true;
         }
 
         public void RemoveUser(string user) {
@@ -58,6 +57,11 @@ namespace GcpD.Core.ChannelManagement {
         public bool HasUser(string user) {
             lock (_lock)
                 return Users.Contains(user);
+        }
+
+        public bool HasUsers() {
+            lock (_lock)
+                return Users.Count > 0;
         }
 
         public IList<string> GetUsers() {

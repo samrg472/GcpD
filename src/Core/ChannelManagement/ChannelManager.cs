@@ -53,16 +53,14 @@ namespace GcpD.Core.ChannelManagement {
         public void Join(string user, string channel) {
             if (!Channels.ContainsKey(channel))
                 Create(channel);
-            if (Channels[channel].AddUser(user)) {
+            if (!Channels[channel].HasUser(user)) {
                 foreach (string nick in Channels[channel].GetUsers()) {
-                    if (user == nick)
-                        continue;
                     Client client = Handler.ClientsManager.GetClient(nick);
                     client.Send(SendType.JOIN, string.Format("Channel{1}{2}{0}User{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, channel, user));
                 }
                 Console.WriteLine("User {0} joined {1}", user, channel);
             }
-
+            Channels[channel].AddUser(user);
         }
 
         public void Leave(string user, string channel) {
@@ -70,23 +68,21 @@ namespace GcpD.Core.ChannelManagement {
                 return;
             Channels[channel].RemoveUser(user);
             foreach (string nick in Channels[channel].GetUsers()) {
-                Client client = Handler.ClientsManager.GetClient(nick);
-                if (client == null || user == nick)
+                if (user == nick)
                     continue;
+                Client client = Handler.ClientsManager.GetClient(nick);
                 client.Send(SendType.LEAVE, string.Format("Channel{1}{2}{0}User{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, channel, user));
             }
+            if (!Channels[channel].HasUsers())
+                Destroy(channel);
         }
 
         public void Leave(string user) {
-            foreach (Channel channel in Channels.Values) {
-                if (channel.HasUser(user)) {
-                    channel.RemoveUser(user);
-                    foreach (string nick in channel.GetUsers()) {
-                        Client client = Handler.ClientsManager.GetClient(nick);
-                        client.Send(SendType.LEAVE, string.Format("Channel{1}{2}{0}User{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, channel.Name, user));
-                    }
-                }
-            }
+            string[] channels = new string[Channels.Count];
+            Channels.Keys.CopyTo(channels, 0);
+            for (int i = 0; i < channels.Length; i++)
+                Leave(user, channels[i]);
+
         }
 
         public void SendMessage(string user, string channel, string message) {
@@ -107,8 +103,6 @@ namespace GcpD.Core.ChannelManagement {
         }
 
         public void Destroy(string channel) {
-            foreach (string nick in Channels[channel].GetUsers()) // Part any remaining nicks
-                Leave(nick);
             Channels.Remove(channel);
         }
 

@@ -91,7 +91,7 @@ namespace GcpD.Core.ClientManagement {
                         Console.WriteLine("Client {0} disconnected", GetHostName());
                         #endif
                         if (!_Disposed)
-                            Handler.ClientsManager.RemoveClient(this);
+                            ThreadPool.QueueUserWorkItem((object o) => { Handler.ClientsManager.RemoveClient(this); });
                         break;
                     } 
                     ThreadPool.QueueUserWorkItem(Parser, line);
@@ -225,6 +225,8 @@ namespace GcpD.Core.ClientManagement {
                 if (RawClient != null)
                     RawClient.Close();
 
+                if (NickName != null)
+                    Handler.ChannelsManager.Leave(NickName);
             }
 
             Writer = null;
