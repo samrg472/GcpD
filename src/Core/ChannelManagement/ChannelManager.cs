@@ -55,9 +55,9 @@ namespace GcpD.Core.ChannelManagement {
                 Create(channel);
             if (Channels[channel].AddUser(user)) {
                 foreach (string nick in Channels[channel].GetUsers()) {
-                    Client client = Handler.ClientsManager.GetClient(nick);
                     if (user == nick)
                         continue;
+                    Client client = Handler.ClientsManager.GetClient(nick);
                     client.Send(SendType.JOIN, string.Format("Channel{1}{2}{0}User{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, channel, user));
                 }
                 Console.WriteLine("User {0} joined {1}", user, channel);
