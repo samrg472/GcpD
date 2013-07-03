@@ -47,6 +47,11 @@ namespace GcpD.Core.Entry {
             if (!di.Exists)
                 di.Create();
             Directory.SetCurrentDirectory(References.GCPD_FOLDER);
+
+            Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) => {
+                Console.WriteLine("Server is now shutting down!");
+                InternalReferences.Handler.Stop();
+            };
             new Start().Run(args);
         }
 
