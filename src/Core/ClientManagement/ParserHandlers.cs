@@ -98,9 +98,26 @@ namespace GcpD.Core.ClientManagement {
 
         public static void Join(Client handler, string line, string[] splitData) {
             string[] data;
-            if (ParserHelper.Join(splitData, out data)) // TODO: check if channel is registered and verify the pass if there is one
+            if (ParserHelper.Join(splitData, out data)) {
+                if (handler.Handler.ChannelsManager.ChannelRegistered(data[0])) {
+                    string hash = null;
+                    string salt = null;
+                    using (var reader = References.Database.Read(string.Format("SELECT {0}, {1} FROM {2} WHERE {3}=@val", InternalReferences.CHANNELS_PASS_COL, InternalReferences.CHANNELS_SALT_COL, InternalReferences.CHANNELS_TABLE, InternalReferences.CHANNELS_CHANNEL_COL),
+                                                                 new Mono.Data.Sqlite.SqliteParameter("@val", data[0]))) {
+                        while (reader.Read()) {
+                            hash = reader.IsDBNull(0) ? null : reader.GetString(0);
+                            salt = reader.IsDBNull(1) ? null : reader.GetString(1);
+                        }
+                    }
+                    if (hash != null && salt != null) {
+                        if (data[1] == null || !Utils.ValidPassword(data[1], hash, salt)) {
+                            handler.SendError(SendType.ERROR_0002, SendType.CONNECT, line);
+                            return;
+                        }
+                    }
+                }
                 handler.Handler.ChannelsManager.Join(handler.NickName, data[0]);
-            else
+            } else
                 handler.SendError(SendType.ERROR_0005, SendType.JOIN, line);
         }
 
@@ -189,7 +206,7 @@ namespace GcpD.Core.ClientManagement {
         }
 
         public static bool Join(string[] data, out string[] parameters) {
-            parameters = Utils.Split(data, "Channel");
+            parameters = Utils.Split(data, "Channel", "Pass");
             if (parameters[0] == null)
                 return false;
             return true;
