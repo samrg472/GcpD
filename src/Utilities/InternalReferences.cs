@@ -37,6 +37,8 @@ namespace GcpD.Utilities {
         public const string CHANNELS_TABLE = "Channels";
         public const string CHANNELS_CHANNEL_COL = "channel";
         public const string CHANNELS_OWNER_COL = "owner";
+        public const string CHANNELS_PASS_COL = "pass";
+        public const string CHANNELS_SALT_COL = "salt";
 
         public const string NICKS_TABLE = "Nicks";
         public const string NICKS_NICK_COL = "nick";

@@ -84,8 +84,8 @@ namespace GcpD.Core.Entry {
 
         private void InitializeDatabase() {
             // Populate sqlite database with default tables and columns
-            References.Database.ExecuteNonQuery(string.Format("CREATE TABLE IF NOT EXISTS {0}({1} TEXT PRIMARY KEY NOT NULL, {2} TEXT NOT NULL)", 
-                                                              InternalReferences.CHANNELS_TABLE, InternalReferences.CHANNELS_CHANNEL_COL, InternalReferences.CHANNELS_OWNER_COL));
+            References.Database.ExecuteNonQuery(string.Format("CREATE TABLE IF NOT EXISTS {0}({1} TEXT PRIMARY KEY NOT NULL, {2} TEXT NOT NULL, {3} TEXT, {4} TEXT)", 
+                                                              InternalReferences.CHANNELS_TABLE, InternalReferences.CHANNELS_CHANNEL_COL, InternalReferences.CHANNELS_OWNER_COL, InternalReferences.CHANNELS_PASS_COL, InternalReferences.CHANNELS_SALT_COL));
             References.Database.ExecuteNonQuery(string.Format("CREATE TABLE IF NOT EXISTS {0}({1} TEXT PRIMARY KEY NOT NULL, {2} TEXT NOT NULL, {3} TEXT KEY NOT NULL)", 
                                                               InternalReferences.NICKS_TABLE, InternalReferences.NICKS_NICK_COL, InternalReferences.NICKS_PASS_COL, InternalReferences.NICKS_SALT_COL));
         }

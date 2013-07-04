@@ -98,12 +98,13 @@ namespace GcpD.Core.ClientManagement {
         }
 
         internal void RemoveClient(Client client) {
-            client.Dispose();
-            if (Nicks.ContainsValue(client))
-                Nicks.Remove(client.NickName);
+            Console.WriteLine("Erasing {0} from base", client.NickName ?? "unknown client"); // DEBUG
+            if (client.NickName != null) {
+                RemoveNick(client.NickName, true);
+                return;
+            }
             UnnamedClients.Remove(client);
-            if (client.NickName != null)
-                Handler.ChannelsManager.Leave(client.NickName);
+            client.Dispose();
         }
 
         public void Clear() {

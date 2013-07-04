@@ -74,19 +74,31 @@ namespace GcpD.Core.ClientManagement {
                 handler.SendError(SendType.ERROR_0005, SendType.REGISTER, line);
                 return;
             }
-            if (handler.Handler.ClientsManager.NickRegistered(handler.NickName)) {
-                handler.SendError(SendType.ERROR_0006, SendType.REGISTER, line);
-                return;
+            if (data[0] == "user") {
+                if (handler.Handler.ClientsManager.NickRegistered(handler.NickName)) {
+                    handler.SendError(SendType.ERROR_0006, SendType.REGISTER, line);
+                    return;
+                }
+                string salt = Utils.GenerateSalt();
+                References.Database.Insert(InternalReferences.NICKS_TABLE, InternalReferences.NICKS_NICK_COL, InternalReferences.NICKS_PASS_COL, InternalReferences.NICKS_SALT_COL,
+                                           handler.NickName, Utils.Hash(data[1], salt), salt);
+                handler.SetAuthenticated(true);
+            } else if (data[0] == "channel") {
+                if (handler.Handler.ChannelsManager.ChannelRegistered(data[2])) {
+                    handler.SendError(SendType.ERROR_0006, SendType.REGISTER, line);
+                    return;
+                }
+                string salt = Utils.GenerateSalt();
+                References.Database.Insert(InternalReferences.CHANNELS_TABLE, InternalReferences.CHANNELS_CHANNEL_COL, InternalReferences.CHANNELS_OWNER_COL, InternalReferences.CHANNELS_PASS_COL, InternalReferences.CHANNELS_SALT_COL,
+                                           data[2], handler.NickName, !string.IsNullOrEmpty(data[1]) ? Utils.Hash(data[1], salt) : null, !string.IsNullOrEmpty(data[1]) ? salt : null);
+            } else {
+                handler.SendError(SendType.ERROR_0005, SendType.REGISTER, line);
             }
-            string salt = Utils.GenerateSalt();
-            References.Database.Insert(InternalReferences.NICKS_TABLE, InternalReferences.NICKS_NICK_COL, InternalReferences.NICKS_PASS_COL, InternalReferences.NICKS_SALT_COL,
-                                       handler.NickName, Utils.Hash(data[0], salt), salt);
-            handler.SetAuthenticated(true);
         }
 
         public static void Join(Client handler, string line, string[] splitData) {
             string[] data;
-            if (ParserHelper.Join(splitData, out data))
+            if (ParserHelper.Join(splitData, out data)) // TODO: check if channel is registered and verify the pass if there is one
                 handler.Handler.ChannelsManager.Join(handler.NickName, data[0]);
             else
                 handler.SendError(SendType.ERROR_0005, SendType.JOIN, line);
@@ -170,8 +182,8 @@ namespace GcpD.Core.ClientManagement {
         }
 
         public static bool Register(string[] data, out string[] parameters) {
-            parameters = Utils.Split(data, "Pass");
-            if (parameters[0] == null)
+            parameters = Utils.Split(data, "Type", "Pass", "Channel");
+            if ((parameters[0] == null) || ((parameters[1] == null) && (parameters[2] == null)))
                 return false;
             return true;
         }

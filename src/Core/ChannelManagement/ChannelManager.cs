@@ -106,7 +106,7 @@ namespace GcpD.Core.ChannelManagement {
             Channels.Remove(channel);
         }
 
-        public bool Registered(string channel) {
+        public bool ChannelRegistered(string channel) {
             return References.Database.Exists(InternalReferences.CHANNELS_TABLE, InternalReferences.CHANNELS_CHANNEL_COL, channel);
         }
     }

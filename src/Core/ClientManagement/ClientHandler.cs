@@ -87,9 +87,9 @@ namespace GcpD.Core.ClientManagement {
                 while (IsConnected && Handling) {
                     line = Reader.ReadLine();
                     if (line == null) { // Disconnected or something bad happened; kill the listener
-                        #if DEBUG
+#if DEBUG
                         Console.WriteLine("Client {0} disconnected", GetHostName());
-                        #endif
+#endif
                         if (!_Disposed)
                             ThreadPool.QueueUserWorkItem((object o) => { Handler.ClientsManager.RemoveClient(this); });
                         break;
@@ -97,8 +97,11 @@ namespace GcpD.Core.ClientManagement {
                     ThreadPool.QueueUserWorkItem(Parser, line);
                 }
             } catch {
-                if (Handling)
-                    ThreadPool.QueueUserWorkItem((object o) => { StopHandling(); });
+                ThreadPool.QueueUserWorkItem((object o) => {
+                    Console.WriteLine("Error handling, time to dispose of this");
+                    StopHandling();
+                    Handler.ClientsManager.RemoveClient(this); 
+                });
             }
         }
 
