@@ -124,9 +124,8 @@ namespace GcpD.Core.ClientManagement {
             try {
                 if (WorkerThread != null)
                     WorkerThread.Abort();
-            } catch {
-                WorkerThread = null;
-            }
+            } catch {}
+            WorkerThread = null;
         }
         #endregion
 

@@ -60,8 +60,7 @@ namespace GcpD.Core.ClientManagement {
                     Writer.WriteLine(type.ToString() + SyntaxCode.PARAM_SPLITTER + msg);
                     Writer.Flush();
                 } catch (IOException) {
-                    if (WorkerThread != null)
-                        WorkerThread.Abort();
+                    StopHandling();
                 }
             }
         }
