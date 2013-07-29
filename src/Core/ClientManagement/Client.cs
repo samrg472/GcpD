@@ -29,6 +29,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.IO;
 using System.Net.Sockets;
 using GcpD.API.References;
 
@@ -53,10 +54,15 @@ namespace GcpD.Core.ClientManagement {
 
         public void Send(SendType type, string msg) {
             lock (_lock) {
-                if (Writer == null)
-                    return;
-                Writer.WriteLine(type.ToString() + SyntaxCode.PARAM_SPLITTER + msg);
-                Writer.Flush();
+                try {
+                    if (Writer == null)
+                        return;
+                    Writer.WriteLine(type.ToString() + SyntaxCode.PARAM_SPLITTER + msg);
+                    Writer.Flush();
+                } catch (IOException) {
+                    if (WorkerThread != null)
+                        WorkerThread.Abort();
+                }
             }
         }
 

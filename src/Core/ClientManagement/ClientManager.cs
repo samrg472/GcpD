@@ -98,7 +98,7 @@ namespace GcpD.Core.ClientManagement {
         }
 
         internal void RemoveClient(Client client) {
-            Console.WriteLine("Erasing {0} from base", client.NickName ?? "unknown client"); // DEBUG
+            Console.WriteLine("Erasing {0} from ClientManager", client.NickName ?? "unknown client"); // DEBUG
             if (client.NickName != null) {
                 RemoveNick(client.NickName, true);
                 return;

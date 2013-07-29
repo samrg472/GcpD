@@ -51,7 +51,7 @@ namespace GcpD.Core.ClientManagement {
         private TcpClient RawClient;
         private StreamWriter Writer;
         private StreamReader Reader;
-        private bool Handling = false;
+        private bool Parsing = false;
         private bool _Disposed = false;
 
         private Thread WorkerThread = null;
@@ -84,7 +84,7 @@ namespace GcpD.Core.ClientManagement {
         protected void Work() {
             try {
                 string line;
-                while (IsConnected && Handling) {
+                while (IsConnected) {
                     line = Reader.ReadLine();
                     if (line == null) { // Disconnected or something bad happened; kill the listener
 #if DEBUG
@@ -93,7 +93,8 @@ namespace GcpD.Core.ClientManagement {
                         if (!_Disposed)
                             ThreadPool.QueueUserWorkItem((object o) => { Handler.ClientsManager.RemoveClient(this); });
                         break;
-                    } 
+                    }
+                    while (Parsing);
                     ThreadPool.QueueUserWorkItem(Parser, line);
                 }
             } catch {
@@ -107,7 +108,6 @@ namespace GcpD.Core.ClientManagement {
 
         public void StartHandling() {
             try {
-                Handling = true;
                 try {
                     if (WorkerThread != null)
                         WorkerThread.Abort();
@@ -121,38 +121,37 @@ namespace GcpD.Core.ClientManagement {
         }
 
         public void StopHandling() {
-            if (!Handling)
-                return;
             try {
                 if (WorkerThread != null)
                     WorkerThread.Abort();
             } catch {
                 WorkerThread = null;
-                Handling = false;
             }
         }
         #endregion
 
         #region Parser handlers (executed in the thread pool)
         protected void Parser(object _line) {
+            Parsing = true;
+
             string line = (string) _line;
             string[] splitData;
             if (!SyntaxCheck(line, out splitData)) {
                 Send(SendType.SYNTAXERROR, string.Format("Error{1}0000{0}{2}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, line));
                 Console.WriteLine("Thrown syntax error for host {0}", GetHostName());
-                return;
+                goto finish;
             }
 
             if (!Enum.GetNames(typeof(SendType)).Contains(splitData[0])) {
                 SendError(SendType.ERROR_0001, splitData[0], line);
-                return;
+                goto finish;
             }
             SendType type = (SendType) Enum.Parse(typeof(SendType), splitData[0]);
 
             if (type != SendType.CONNECT) {
                 if (!IsProperlyConnected) {
                     SendError(SendType.ERROR_0007, type, line);
-                    return;
+                    goto finish;
                 }
             }
             if (type != SendType.REGISTER && type != SendType.CONNECT)
@@ -184,6 +183,9 @@ namespace GcpD.Core.ClientManagement {
                     ParserExecutor.Pong(this, line, splitData);
                     break;
             }
+
+        finish:
+            Parsing = false;
         }
 
         protected bool SyntaxCheck(string line, out string[] splitData) {
@@ -220,8 +222,10 @@ namespace GcpD.Core.ClientManagement {
 
             if (disposing) {
                 lock (_lock) {
-                    if (Writer != null)
-                        Writer.Dispose();
+                    try {
+                        if (Writer != null)
+                            Writer.Dispose();
+                    } catch {}
                     Writer = null;
 
                     if (Reader != null)
