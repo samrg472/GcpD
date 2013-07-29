@@ -138,7 +138,7 @@ namespace GcpD.Core.ClientManagement {
             string line = (string) _line;
             string[] splitData;
             if (!SyntaxCheck(line, out splitData)) {
-                Send(SendType.SYNTAXERROR, string.Format("Error{1}{2}{0}Data{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, SendType.ERROR_0000, line));
+                Send(SendType.SYNTAXERROR, string.Format("Error{1}0000{0}{2}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, line));
                 Console.WriteLine("Thrown syntax error for host {0}", GetHostName());
                 return;
             }
