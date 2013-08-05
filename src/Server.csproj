@@ -68,6 +68,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
     <Reference Include="System.Security" />
+    <Reference Include="Mono.Security" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />

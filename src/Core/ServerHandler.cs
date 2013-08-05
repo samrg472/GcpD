@@ -42,24 +42,27 @@ namespace GcpD.Core {
     public class ServerHandler {
 
         public bool IsListening {
-            get { return Server.Active; }
+            get { return ServerListener.Server.Active && SslServerListener.Server.Active; }
         }
 
         public readonly int MaxConnections;
         public readonly ChannelManager ChannelsManager;
         public readonly ClientManager ClientsManager;
 
-        private readonly TcpListenerWrapper Server;
         private readonly Listener ServerListener;
+        private readonly Listener SslServerListener;
 
         #region Constructors/Destructors
-        public ServerHandler(string bindAddress, ushort port, uint maxConnections) {
+        public ServerHandler(string bindAddress, ushort port, ushort sslPort, uint maxConnections) {
             MaxConnections = (int) maxConnections;
             ChannelsManager = new ChannelManager(this);
             ClientsManager = new ClientManager(this, MaxConnections);
 
-            Server = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any :IPAddress.Parse(bindAddress), port);
-            ServerListener = new Listener(this);
+            var Server = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any : IPAddress.Parse(bindAddress), port);
+            ServerListener = new Listener(this, Server, false);
+
+            var SslServer = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any : IPAddress.Parse(bindAddress), sslPort);
+            SslServerListener = new Listener(this, SslServer, true);
         }
 
         ~ServerHandler() {
@@ -71,52 +74,62 @@ namespace GcpD.Core {
         public void Start() {
             if (IsListening)
                 return;
+
             ClientsManager.Clear();
-            Server.Start(MaxConnections);
             ServerListener.Run(true);
+            SslServerListener.Run(true);
         }
 
         public void Stop() {
             if (!IsListening)
                 return;
             ServerListener.Run(false);
-            ClientsManager.Clear();
-            Server.Stop();
+            SslServerListener.Run(false);
 
+            ClientsManager.Clear();
         }
         #endregion
 
         private class Listener {
 
-            private Thread thread;
-            private readonly ServerHandler Server;
+            public readonly TcpListenerWrapper Server;
 
-            public Listener(ServerHandler server) {
+            private Thread thread;
+            private readonly ServerHandler Handler;
+            private readonly bool Ssl;
+
+            public Listener(ServerHandler handler, TcpListenerWrapper server, bool ssl) {
+                Handler = handler;
                 Server = server;
+                Ssl = ssl;
             }
 
             public void Run(bool run) {
                 try {
                     if (run) {
+                        Server.Start(Handler.MaxConnections);
                         thread = new Thread(new ThreadStart(ClientListener));
                         thread.Start();
                     } else {
+                        Server.Stop();
                         thread.Abort();
                     }
-                } catch {
+                } catch (Exception e) {
+                    Console.WriteLine("Error performing task to start/stop server\n", e);
                 }
             }
 
             public void ClientListener() {
                 try {
-                    while (Server.IsListening) {
-                        TcpClient client = Server.Server.AcceptTcpClient();
-                        Client cHandler = new Client(client, Server);
+                    while (Server.Active) {
+                        TcpClient client = Server.AcceptTcpClient();
+                        Client cHandler = new Client(client, Handler, Ssl);
                         cHandler.StartHandling();
-                        Server.ClientsManager.AddUnnamed(cHandler);
-
+                        Handler.ClientsManager.AddUnnamed(cHandler);
                     }
-                } catch {}
+                } catch (Exception e) {
+                    Console.WriteLine("Error handling user:\n" + e);
+                }
             }
         }
     }

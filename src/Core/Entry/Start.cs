@@ -71,11 +71,12 @@ namespace GcpD.Core.Entry {
             InitializeDatabase();
 
             Config.SetUserConfig(Config.ApplyJsonFromPath(Path.Combine(References.GCPD_FOLDER, "settings.conf")));
-            Console.WriteLine("Binding to {0} on port {1}", string.IsNullOrEmpty(Config.User.BindAddress) ? "all interfaces" : Config.User.BindAddress, ushort.Parse(Config.User.Port));
+            Console.WriteLine("Binding to {0} on port {1} and port {2} for SSL", string.IsNullOrEmpty(Config.User.BindAddress) ? "all interfaces" : Config.User.BindAddress, (ushort) Config.User.Port, (ushort) Config.User.Ssl_Port);
             Console.WriteLine("Maximum number of connections {0}", Config.User.MaxConnections);
-            InternalReferences.Handler = new ServerHandler(Config.User.BindAddress, 
-                                                     ushort.Parse(Config.User.Port), 
-                                                     uint.Parse(Config.User.MaxConnections));
+            InternalReferences.Handler = new ServerHandler(Config.User.BindAddress,
+                                                     (ushort) Config.User.Port,
+                                                     (ushort) Config.User.Ssl_Port,
+                                                     (uint) Config.User.MaxConnections);
             InternalReferences.Handler.Start();
 
             var loader = new Plugin.PluginLoader();

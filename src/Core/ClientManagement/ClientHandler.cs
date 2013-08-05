@@ -32,10 +32,16 @@ using System.Linq;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+
+using JsonConfig;
 using GcpD.API.References;
 
 namespace GcpD.Core.ClientManagement {
     public partial class Client : IDisposable { // See Client.cs
+
+        private static X509Certificate cert;
 
         public bool IsConnected {
             get { return RawClient != null && RawClient.Connected; }
@@ -59,11 +65,29 @@ namespace GcpD.Core.ClientManagement {
         private bool _IsProperlyConnected = false;
 
 
-        public Client(TcpClient client, ServerHandler handler) {
+        public Client(TcpClient client, ServerHandler handler, bool ssl) {
             Handler = handler;
             RawClient = client;
-            Writer = new StreamWriter(RawClient.GetStream());
-            Reader = new StreamReader(RawClient.GetStream());
+            if (!ssl) {
+                Writer = new StreamWriter(RawClient.GetStream());
+                Reader = new StreamReader(RawClient.GetStream());
+            } else {
+                if (cert == null) {
+                    var path = Path.GetFullPath(Path.Combine(References.GCPD_FOLDER, Config.User.Ssl_Cert_Path));
+                    if (!(new FileInfo(path)).Exists)
+                        throw new Exception("certificate does not exist at " + path);
+                    cert = new X509Certificate2(path, Config.User.Ssl_Cert_Pass);
+                }
+                try {
+                    SslStream stream = new SslStream(RawClient.GetStream(), false);
+                    stream.AuthenticateAsServer(cert, false, System.Security.Authentication.SslProtocols.Tls, false);
+                    Writer = new StreamWriter(stream);
+                    Reader = new StreamReader(stream);
+                } catch (IOException e) {
+                    client.Close();
+                    throw e;
+                }
+            }
             ThreadPool.QueueUserWorkItem((object o) => { AssignHostName(); });
         }
 
@@ -99,7 +123,6 @@ namespace GcpD.Core.ClientManagement {
                 }
             } catch {
                 ThreadPool.QueueUserWorkItem((object o) => {
-                    Console.WriteLine("Error handling, time to dispose of this");
                     StopHandling();
                     Handler.ClientsManager.RemoveClient(this); 
                 });
