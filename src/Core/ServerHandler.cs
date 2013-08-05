@@ -127,14 +127,15 @@ namespace GcpD.Core {
                             client.Close();
                             continue;
                         }
-
-                        Client cHandler = new Client(client, Handler, Ssl);
-                        cHandler.StartHandling();
-                        Handler.ClientsManager.AddUnnamed(cHandler);
+                        try {
+                            Client cHandler = new Client(client, Handler, Ssl);
+                            cHandler.StartHandling();
+                            Handler.ClientsManager.AddUnnamed(cHandler);
+                        } catch (Exception e) {
+                            Console.WriteLine("Error handling user:\n" + e);
+                        }
                     }
-                } catch (Exception e) {
-                    Console.WriteLine("Error handling user:\n" + e);
-                }
+                } catch {}
             }
         }
     }
