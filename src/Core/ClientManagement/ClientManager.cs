@@ -40,9 +40,9 @@ namespace GcpD.Core.ClientManagement {
         private Dictionary<string, Client> Nicks;
         private readonly object _lock = new object();
 
-        public ClientManager(ServerHandler handler, int maxUsers) {
+        public ClientManager(ServerHandler handler) {
             UnnamedClients = new List<Client>(maxUsers);
-            Nicks = new Dictionary<string, Client>(maxUsers);
+            Nicks = new Dictionary<string, Client>(handler.MaxConnections);
             Handler = handler;
         }
 
@@ -114,6 +114,10 @@ namespace GcpD.Core.ClientManagement {
                 c.Dispose();
             Nicks.Clear();
             UnnamedClients.Clear();
+        }
+
+        public int getTotalUsersCount() {
+            return Nicks.Count + UnnamedClients.Count;
         }
     }
 }

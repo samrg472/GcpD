@@ -56,7 +56,7 @@ namespace GcpD.Core {
         public ServerHandler(string bindAddress, ushort port, ushort sslPort, uint maxConnections) {
             MaxConnections = (int) maxConnections;
             ChannelsManager = new ChannelManager(this);
-            ClientsManager = new ClientManager(this, MaxConnections);
+            ClientsManager = new ClientManager(this);
 
             var Server = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any : IPAddress.Parse(bindAddress), port);
             ServerListener = new Listener(this, Server, false);
@@ -123,6 +123,11 @@ namespace GcpD.Core {
                 try {
                     while (Server.Active) {
                         TcpClient client = Server.AcceptTcpClient();
+                        if (Handler.ClientsManager.getTotalUsersCount() >= Handler.MaxConnections) {
+                            client.Close();
+                            continue;
+                        }
+
                         Client cHandler = new Client(client, Handler, Ssl);
                         cHandler.StartHandling();
                         Handler.ClientsManager.AddUnnamed(cHandler);
