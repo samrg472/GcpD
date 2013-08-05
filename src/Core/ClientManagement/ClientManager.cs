@@ -41,7 +41,7 @@ namespace GcpD.Core.ClientManagement {
         private readonly object _lock = new object();
 
         public ClientManager(ServerHandler handler) {
-            UnnamedClients = new List<Client>(maxUsers);
+            UnnamedClients = new List<Client>(handler.MaxConnections);
             Nicks = new Dictionary<string, Client>(handler.MaxConnections);
             Handler = handler;
         }
