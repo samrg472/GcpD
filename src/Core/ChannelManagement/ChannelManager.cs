@@ -84,9 +84,7 @@ namespace GcpD.Core.ChannelManagement {
         }
 
         public void SendMessage(string user, string channel, string message) {
-            if (!Channels.ContainsKey(channel))
-                return;
-            if (!Channels[channel].HasUser(user))
+            if (!(Channels.ContainsKey(channel) && Channels[channel].HasUser(user)))
                 return;
             foreach (string nick in Channels[channel].GetUsers()) {
                 if (nick == user)
