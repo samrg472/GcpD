@@ -45,9 +45,7 @@ namespace GcpD.Core.ChannelManagement {
         }
 
         public bool UserInChannel(string user, string channel) {
-            if (!Channels.ContainsKey(channel))
-                return false;
-            return Channels[channel].HasUser(user);
+            return Channels.ContainsKey(channel) && Channels[channel].HasUser(user);
         }
 
         public void Join(string user, string channel) {
@@ -63,25 +61,25 @@ namespace GcpD.Core.ChannelManagement {
             Channels[channel].AddUser(user);
         }
 
-        public void Leave(string user, string channel) {
+        public void Leave(string user, string channel, string reason) {
             if (!Channels.ContainsKey(channel))
                 return;
+            reason = reason ?? "Client left";
             Channels[channel].RemoveUser(user);
             foreach (string nick in Channels[channel].GetUsers()) {
-                if (user == nick)
-                    continue;
                 Client client = Handler.ClientsManager.GetClient(nick);
-                client.Send(SendType.LEAVE, string.Format("Channel{1}{2}{0}User{1}{3}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, channel, user));
+                client.Send(SendType.LEAVE, string.Format("Channel{1}{2}{0}User{1}{3}{0}Reason{1}{4}", SyntaxCode.PARAM_SPLITTER, SyntaxCode.VALUE_SPLITTER, channel, user, reason));
             }
             if (!Channels[channel].HasUsers())
                 Destroy(channel);
         }
 
-        public void Leave(string user) {
+        public void Quit(string user, string reason) {
             string[] channels = new string[Channels.Count];
             Channels.Keys.CopyTo(channels, 0);
+            reason = reason ?? "Client quit";
             for (int i = 0; i < channels.Length; i++)
-                Leave(user, channels[i]);
+                Leave(user, channels[i], reason);
 
         }
 

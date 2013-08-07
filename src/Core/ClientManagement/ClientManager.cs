@@ -86,24 +86,21 @@ namespace GcpD.Core.ClientManagement {
         public void ChangeNick(string oldNick, string newNick) {
             Client client = Nicks[oldNick];
             AddNick(newNick, client);
-            RemoveNick(oldNick, false);
-        }
-
-        private void RemoveNick(string nick, bool dispose) {
-            if (dispose && Nicks.ContainsKey(nick))
-                Nicks[nick].Dispose();
-            Nicks[nick] = null;
-            Nicks.Remove(nick);
-            Handler.ChannelsManager.Leave(nick);
+            if (NickTaken(oldNick))
+                Nicks.Remove(oldNick);
         }
 
         internal void RemoveClient(Client client) {
+            RemoveClient(client, null);
+        }
+
+        internal void RemoveClient(Client client, string reason) {
             Console.WriteLine("Erasing {0} from ClientManager", client.NickName ?? "unknown client");
             if (client.NickName != null) {
-                RemoveNick(client.NickName, true);
-                return;
-            }
-            UnnamedClients.Remove(client);
+                Handler.ChannelsManager.Quit(client.NickName, reason);
+                Nicks.Remove(client.NickName);
+            } else
+                UnnamedClients.Remove(client);
             client.Dispose();
         }
 

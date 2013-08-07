@@ -122,9 +122,8 @@ namespace GcpD.Utilities {
 
         public static string[] ValueSplitter(string data) {
             int index = data.IndexOf(SyntaxCode.VALUE_SPLITTER);
-            if (index == -1) {
+            if (index == -1)
                 return null;
-            }
             return new string[] { data.Substring(0, index), data.Substring(index + 1) };
         }
     }

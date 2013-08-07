@@ -124,11 +124,11 @@ namespace GcpD.Core.ClientManagement {
         public static void Leave(Client handler, string line, string[] splitData) {
             string[] data;
             if (ParserHelper.Leave(splitData, out data)) {
-                if (handler.Handler.ChannelsManager.UserInChannel(handler.NickName, data[0])) {
+                if (!handler.Handler.ChannelsManager.UserInChannel(handler.NickName, data[0])) {
                     handler.SendError(SendType.ERROR_0003, SendType.LEAVE, line);
                     return;
                 }
-                handler.Handler.ChannelsManager.Leave(handler.NickName, data[0]);
+                handler.Handler.ChannelsManager.Leave(handler.NickName, data[0], data[1]);
             } else
                 handler.SendError(SendType.ERROR_0005, SendType.LEAVE, line);
         }
@@ -213,7 +213,7 @@ namespace GcpD.Core.ClientManagement {
         }
 
         public static bool Leave(string[] data, out string[] parameters) {
-            parameters = Utils.Split(data, "Channel");
+            parameters = Utils.Split(data, "Channel", "Reason");
             if (parameters[0] == null)
                 return false;
             return true;

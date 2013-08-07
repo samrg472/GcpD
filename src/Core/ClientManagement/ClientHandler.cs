@@ -184,7 +184,7 @@ namespace GcpD.Core.ClientManagement {
                     ParserExecutor.Connect(this, line, splitData);
                     break;
                 case SendType.QUIT:
-                    Handler.ClientsManager.RemoveClient(this);
+                    Handler.ClientsManager.RemoveClient(this, Utilities.Utils.Split(splitData, "Reason")[0]);
                     break;
                 case SendType.REGISTER:
                     ParserExecutor.Register(this, line, splitData);
@@ -257,14 +257,10 @@ namespace GcpD.Core.ClientManagement {
                     if (RawClient != null)
                         RawClient.Close();
                     RawClient = null;
-
-                    if (NickName != null)
-                        Handler.ChannelsManager.Leave(NickName);
                 }
             }
 
             _Disposed = true;
-            Handler.ClientsManager.RemoveClient(this);
         }
         #endregion
 
