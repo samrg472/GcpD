@@ -62,7 +62,7 @@ namespace GcpD.Core.ChannelManagement {
         }
 
         public void Leave(string user, string channel, string reason) {
-            if (!Channels.ContainsKey(channel))
+            if (!(Channels.ContainsKey(channel) && Channels[channel].HasUser(user)))
                 return;
             reason = reason ?? "Client left";
             Channels[channel].RemoveUser(user);
