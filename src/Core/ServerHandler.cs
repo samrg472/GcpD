@@ -42,7 +42,7 @@ namespace GcpD.Core {
     public class ServerHandler {
 
         public bool IsListening {
-            get { return ServerListener.Server.Active && SslServerListener.Server.Active; }
+            get { return (ServerListener != null && ServerListener.Server.Active) || (SslServerListener != null && SslServerListener.Server.Active); }
         }
 
         public readonly int MaxConnections;
@@ -58,11 +58,15 @@ namespace GcpD.Core {
             ChannelsManager = new ChannelManager(this);
             ClientsManager = new ClientManager(this);
 
-            var Server = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any : IPAddress.Parse(bindAddress), port);
-            ServerListener = new Listener(this, Server, false);
+            if (port == 0) {
+                var Server = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any : IPAddress.Parse(bindAddress), port);
+                ServerListener = new Listener(this, Server, false);
+            }
 
-            var SslServer = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any : IPAddress.Parse(bindAddress), sslPort);
-            SslServerListener = new Listener(this, SslServer, true);
+            if (sslPort == 0) {
+                var SslServer = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any : IPAddress.Parse(bindAddress), sslPort);
+                SslServerListener = new Listener(this, SslServer, true);
+            }
         }
 
         ~ServerHandler() {
@@ -76,16 +80,16 @@ namespace GcpD.Core {
                 return;
 
             ClientsManager.Clear();
-            ServerListener.Run(true);
-            SslServerListener.Run(true);
+            if (ServerListener != null) ServerListener.Run(true);
+            if (SslServerListener != null) SslServerListener.Run(true);
         }
 
         public void Stop() {
             if (!IsListening)
                 return;
-            ServerListener.Run(false);
-            SslServerListener.Run(false);
 
+            if (ServerListener != null) ServerListener.Run(false);
+            if (SslServerListener != null) SslServerListener.Run(false);
             ClientsManager.Clear();
         }
         #endregion
