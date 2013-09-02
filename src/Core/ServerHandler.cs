@@ -58,12 +58,12 @@ namespace GcpD.Core {
             ChannelsManager = new ChannelManager(this);
             ClientsManager = new ClientManager(this);
 
-            if (port == 0) {
+            if (port != 0) {
                 var Server = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any : IPAddress.Parse(bindAddress), port);
                 ServerListener = new Listener(this, Server, false);
             }
 
-            if (sslPort == 0) {
+            if (sslPort != 0) {
                 var SslServer = new TcpListenerWrapper(string.IsNullOrEmpty(bindAddress) ? IPAddress.Any : IPAddress.Parse(bindAddress), sslPort);
                 SslServerListener = new Listener(this, SslServer, true);
             }
@@ -112,7 +112,7 @@ namespace GcpD.Core {
                 try {
                     if (run) {
                         Server.Start(Handler.MaxConnections);
-                        thread = new Thread(new ThreadStart(ClientListener));
+                        thread = new Thread(ClientListener);
                         thread.Start();
                     } else {
                         Server.Stop();
