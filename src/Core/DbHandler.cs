@@ -43,11 +43,14 @@ namespace GcpD.Core {
 
         public DbHandler(SqliteConnection connection) {
             this.connection = connection ?? new SqliteConnection(CONNECTION_STRING);
-            this.connection.Open();
         }
 
         ~DbHandler() {
             connection.Dispose();
+        }
+
+        internal void Open() {
+            this.connection.Open();
         }
 
         /// <summary>
